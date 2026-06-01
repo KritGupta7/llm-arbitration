@@ -41,7 +41,7 @@ async def run_arbitration():
         completeness
     )
 
-    print(verdict)
+    print(verdict.model_dump_json(indent=2))
 
 
 asyncio.run(run_arbitration())
