@@ -7,6 +7,7 @@ class ArbitrationResult(BaseModel):
     confidence_level: str
     summary: str
     confirmed_issues: list[Issue]
+    warnings: list[str] = []
     accuracy: Critique
     logic: Critique
     completeness: Critique
