@@ -29,9 +29,8 @@ def adjudicate(
     else:
         summary = "The answer has serious quality issues and should be reviewed."
 
-    confirmed_issues = (
-        accuracy.issues + logic.issues + completeness.issues
-    )
+    all_issues = accuracy.issues + logic.issues + completeness.issues
+    confirmed_issues = [issue for issue in all_issues if issue.severity >= 4]
 
     return ArbitrationResult(
         final_score=final_score,
