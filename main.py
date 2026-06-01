@@ -1,13 +1,8 @@
-from app.services.openai_client import client
+from app.critics.accuracy import evaluate_accuracy
 
-response = client.chat.completions.create(
-    model="gpt-4o-mini",
-    messages=[
-        {
-            "role": "user",
-            "content": "What causes tides?"
-        }
-    ]
-)
+question = "What causes tides?"
+answer = "Tides are mainly caused by the sun."
 
-print(response.choices[0].message.content)
+result = evaluate_accuracy(question, answer)
+
+print(result)
