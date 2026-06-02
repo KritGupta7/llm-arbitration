@@ -200,6 +200,8 @@ The adjudicator receives the original question, original answer, all three criti
 | `GET` | `/arbitrations/{id}` | Get full stored result |
 | `GET` | `/analytics` | Aggregate evaluation statistics |
 
+![FastAPI interactive docs showing all endpoints](assets/fastapi-docs.png)
+
 ### POST /arbitrate
 
 **Request:**
@@ -307,6 +309,24 @@ The Streamlit dashboard has three tabs:
 | **Arbitrate** | Submit a question and answer, view final score, critic scores, confirmed issues, dismissed issues, disagreements, warnings, and per-critic details |
 | **History** | Browse recent arbitration records; load any record by ID for full details |
 | **Analytics** | Aggregate statistics — average scores, confidence distribution, quality distribution, issue counts, disagreement counts |
+
+### Arbitrate Tab
+
+Submit a question and answer to receive a full arbitration verdict with per-critic scores, confirmed issues, and warnings.
+
+![Streamlit Arbitrate tab showing a 5/5 result](assets/streamlit-result.png)
+
+### History Tab
+
+Browse all stored arbitration records and load any previous result by ID.
+
+![Streamlit History tab showing recent arbitration records](assets/streamlit-history.png)
+
+### Analytics Tab
+
+View aggregate evaluation trends across all stored arbitrations, including confidence and quality distributions and average critic scores.
+
+![Streamlit Analytics tab showing charts and metrics](assets/streamlit-analytics.png)
 
 ---
 
