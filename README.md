@@ -300,6 +300,31 @@ python main.py
 
 ---
 
+## Running Tests
+
+```bash
+python -m pytest
+```
+
+All 37 tests run without an OpenAI API key. Tests cover Pydantic model validation, disagreement detection rules, analytics calculations, and API input validation.
+
+---
+
+## Running with Docker
+
+```bash
+docker compose up --build
+```
+
+| Service | URL |
+|---|---|
+| FastAPI backend + interactive docs | [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs) |
+| Streamlit dashboard | [http://127.0.0.1:8501](http://127.0.0.1:8501) |
+
+> Requires a `.env` file with `OPENAI_API_KEY=your_key` in the project root. The Streamlit container automatically points to the API container via `API_BASE_URL=http://api:8000`.
+
+---
+
 ## Dashboard
 
 The Streamlit dashboard has three tabs:

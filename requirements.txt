@@ -1,5 +1,7 @@
 sqlalchemy==2.0.50
 streamlit==1.58.0
+pytest==9.0.3
+httpx==0.28.1
 annotated-doc==0.0.4
 annotated-types==0.7.0
 anthropic==0.105.2

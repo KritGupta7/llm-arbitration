@@ -1,5 +1,6 @@
 import json
 from collections import Counter
+from typing import Protocol
 
 from app.repositories.arbitration_repository import list_all_arbitrations
 
@@ -18,9 +19,18 @@ _EMPTY = {
 }
 
 
-def get_analytics() -> dict:
-    records = list_all_arbitrations()
+class _RecordLike(Protocol):
+    final_score: float
+    confidence_level: str
+    result_json: str
 
+
+def calculate_analytics_from_records(records: list[_RecordLike]) -> dict:
+    """
+    Pure calculation function. Accepts any list of record-like objects that
+    expose final_score, confidence_level, and result_json. Has no database
+    dependency, making it straightforward to unit test.
+    """
     if not records:
         return dict(_EMPTY)
 
@@ -35,7 +45,6 @@ def get_analytics() -> dict:
     warning_count = 0
     invalid_record_count = 0
     valid_count = 0
-
     score_sum = 0.0
 
     for record in records:
@@ -48,12 +57,10 @@ def get_analytics() -> dict:
         valid_count += 1
         score_sum += record.final_score
 
-        # Confidence counts (use stored column, no need to parse JSON)
         level = record.confidence_level
         if level in confidence_counts:
             confidence_counts[level] += 1
 
-        # Quality buckets
         if record.final_score >= 4:
             quality_counts["high_quality"] += 1
         elif record.final_score >= 3:
@@ -61,12 +68,10 @@ def get_analytics() -> dict:
         else:
             quality_counts["low_quality"] += 1
 
-        # Critic scores
         for dim in ("accuracy", "logic", "completeness"):
             critic_block = data.get(dim, {})
             critic_score_totals[dim] += critic_block.get("score", 0)
 
-        # Confirmed issues
         confirmed = data.get("confirmed_issues", [])
         total_confirmed_issues += len(confirmed)
         for issue in confirmed:
@@ -74,13 +79,8 @@ def get_analytics() -> dict:
             if isinstance(sev, int):
                 confirmed_severities.append(sev)
 
-        # Dismissed issues
         total_dismissed_issues += len(data.get("dismissed_issues", []))
-
-        # Disagreements
         disagreement_count += len(data.get("disagreements", []))
-
-        # Warnings
         warning_count += len(data.get("warnings", []))
 
     if valid_count == 0:
@@ -111,3 +111,8 @@ def get_analytics() -> dict:
         "warning_count": warning_count,
         "invalid_record_count": invalid_record_count,
     }
+
+
+def get_analytics() -> dict:
+    records = list_all_arbitrations()
+    return calculate_analytics_from_records(records)
