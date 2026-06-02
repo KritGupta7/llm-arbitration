@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 from datetime import datetime
+from typing import Literal, Union
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
@@ -48,6 +49,19 @@ class ArbitrationDetailResponse(BaseModel):
     created_at: datetime
 
 
+class BatchItemSuccess(BaseModel):
+    success: Literal[True] = True
+    id: int
+    result: ArbitrationResult
+
+
+class BatchItemFailure(BaseModel):
+    success: Literal[False] = False
+    error: str
+    question: str
+    answer: str
+
+
 @app.get("/")
 def root():
     return {"message": "LLM Arbitration System"}
@@ -58,6 +72,38 @@ async def arbitrate_answer(request: ArbitrationRequest):
     verdict = await arbitrate(request.question, request.answer)
     record = save_arbitration(request.question, request.answer, verdict)
     return ArbitrationAPIResponse(id=record.id, result=verdict)
+
+
+@app.post("/arbitrate/batch")
+async def arbitrate_batch(
+    requests: list[ArbitrationRequest],
+) -> list[Union[BatchItemSuccess, BatchItemFailure]]:
+    if len(requests) == 0:
+        raise HTTPException(
+            status_code=400,
+            detail="Batch request must include at least one item.",
+        )
+    if len(requests) > 10:
+        raise HTTPException(
+            status_code=400,
+            detail="Batch size cannot exceed 10 items.",
+        )
+
+    results: list[Union[BatchItemSuccess, BatchItemFailure]] = []
+
+    for req in requests:
+        try:
+            verdict = await arbitrate(req.question, req.answer)
+            record = save_arbitration(req.question, req.answer, verdict)
+            results.append(BatchItemSuccess(id=record.id, result=verdict))
+        except Exception as exc:
+            results.append(BatchItemFailure(
+                error=str(exc),
+                question=req.question,
+                answer=req.answer,
+            ))
+
+    return results
 
 
 @app.get("/arbitrations", response_model=list[ArbitrationListItem])
