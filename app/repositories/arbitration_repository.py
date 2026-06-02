@@ -44,3 +44,11 @@ def list_arbitrations(limit: int = 20) -> list[ArbitrationRecord]:
         )
     finally:
         db.close()
+
+
+def list_all_arbitrations() -> list[ArbitrationRecord]:
+    db = SessionLocal()
+    try:
+        return db.query(ArbitrationRecord).all()
+    finally:
+        db.close()

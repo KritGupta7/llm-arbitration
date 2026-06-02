@@ -14,6 +14,7 @@ from app.repositories.arbitration_repository import (
     get_arbitration,
     list_arbitrations,
 )
+from app.services.analytics_service import get_analytics
 
 
 @asynccontextmanager
@@ -73,6 +74,11 @@ def get_arbitrations(limit: int = 20):
         )
         for r in records
     ]
+
+
+@app.get("/analytics")
+def analytics():
+    return get_analytics()
 
 
 @app.get("/arbitrations/{record_id}", response_model=ArbitrationDetailResponse)
