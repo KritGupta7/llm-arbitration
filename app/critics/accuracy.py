@@ -4,7 +4,7 @@ from app.models.critique import Critique
 
 
 def evaluate_accuracy(question: str, answer: str) -> Critique:
-    prompt = f"""You are a factual accuracy critic. Your job is to evaluate whether the answer contains correct, verifiable facts.
+    prompt = f"""You are a factual accuracy critic. Your job is to evaluate whether the statements made in the answer are factually correct.
 
 Question:
 {question}
@@ -31,8 +31,14 @@ Return ONLY valid JSON. No markdown, no code fences, no extra text. The JSON mus
 Rules:
 - score: integer 1 (very inaccurate) to 5 (fully accurate)
 - confidence: float 0.0 to 1.0 representing how confident you are in this evaluation
-- issues: list of factual errors found; empty list [] if none
-- severity per issue: integer 1 (minor) to 5 (critical)
+- issues: list of factual errors found in what was actually stated; empty list [] if none
+- severity calibration (follow this strictly):
+  - severity 5: a statement is dangerously wrong, harmful, or directly contradicts well-established fact
+  - severity 4: a statement is clearly incorrect in a way that would meaningfully mislead the reader
+  - severity 3: a statement is imprecise or partially wrong but not fully false
+  - severity 2: a minor inaccuracy or slight overstatement that does not change the overall meaning
+  - severity 1: a trivial nuance or wording choice that is technically debatable
+- DO NOT penalize for information that is simply not mentioned. Accuracy is only about what was stated, not what was omitted.
 - quote must be a verbatim excerpt from the answer
 """
 

@@ -4,7 +4,7 @@ from app.models.critique import Critique
 
 
 def evaluate_completeness(question: str, answer: str) -> Critique:
-    prompt = f"""You are a completeness critic. Your job is to evaluate whether the answer fully addresses the question, covering all important aspects without omitting key information.
+    prompt = f"""You are a completeness critic. Your job is to evaluate whether the answer adequately addresses what the question actually asked for.
 
 Question:
 {question}
@@ -29,11 +29,27 @@ Return ONLY valid JSON. No markdown, no code fences, no extra text. The JSON mus
 }}
 
 Rules:
-- score: integer 1 (very incomplete) to 5 (fully complete)
+- score: integer 1 (fails to address the question) to 5 (fully addresses what was asked)
 - confidence: float 0.0 to 1.0 representing how confident you are in this evaluation
-- issues: list of omissions or gaps found; empty list [] if none
-- severity per issue: integer 1 (minor gap) to 5 (critical omission)
-- quote must be a verbatim excerpt from the answer; if the issue is a missing topic entirely, use a representative phrase from the answer as the anchor
+- CRITICAL DISTINCTION — you must classify every potential gap as one of:
+  - REQUIRED: the question explicitly asked for this information, or the answer is unusable without it
+  - OPTIONAL: this is useful background, extra detail, or advanced context that goes beyond what the question asked
+- Only REQUIRED gaps belong in issues. Do NOT add optional gaps as issues.
+- severity calibration (follow this strictly):
+  - severity 5: the answer completely fails to address the core of the question
+  - severity 4: the answer addresses the question but omits information the question specifically asked for
+  - severity 3: the answer is mostly complete but leaves out something that would genuinely help the reader understand
+  - severity 2: the answer could be slightly expanded but is adequate as-is
+  - severity 1: minor omission of background detail that the question did not ask for
+- Scoring guidance:
+  - score 5: the answer directly and correctly addresses everything the question asked for
+  - score 4: the answer is mostly complete with only minor optional details missing
+  - score 3: the answer addresses the question but is noticeably thin or missing something helpful
+  - score 2: the answer is partially relevant but misses a significant part of what was asked
+  - score 1: the answer barely or does not address the question
+- A concise correct answer to a simple question MUST score 4 or 5. Do not penalize brevity.
+- Advanced topics, edge cases, and extra context that the question did not ask for should NOT lower the score below 4.
+- quote must be a verbatim excerpt from the answer; if the gap is a fully missing topic, use the most relevant existing phrase as anchor
 """
 
     response = client.chat.completions.create(

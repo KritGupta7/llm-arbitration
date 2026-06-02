@@ -4,7 +4,7 @@ from app.models.critique import Critique
 
 
 def evaluate_logic(question: str, answer: str) -> Critique:
-    prompt = f"""You are a logical consistency critic. Your job is to evaluate whether the answer's reasoning is coherent, non-contradictory, and whether its conclusions follow from its premises.
+    prompt = f"""You are a logical consistency critic. Your job is to evaluate whether the reasoning and claims in the answer are coherent, non-contradictory, and internally consistent.
 
 Question:
 {question}
@@ -32,7 +32,14 @@ Rules:
 - score: integer 1 (deeply incoherent) to 5 (perfectly logical)
 - confidence: float 0.0 to 1.0 representing how confident you are in this evaluation
 - issues: list of logical flaws found; empty list [] if none
-- severity per issue: integer 1 (minor) to 5 (critical)
+- severity calibration (follow this strictly):
+  - severity 5: the answer directly contradicts itself or its conclusion is the opposite of what the reasoning supports
+  - severity 4: there is a clear logical non-sequitur or the answer makes a claim that contradicts another claim it makes
+  - severity 3: the reasoning is loose or somewhat circular, but not outright wrong
+  - severity 2: a minor imprecision in how the logic is expressed
+  - severity 1: a trivial phrasing issue that does not affect the reasoning
+- DO NOT penalize for brevity. A concise answer can be perfectly logical.
+- DO NOT penalize for not including additional reasoning steps that were not required by the question.
 - quote must be a verbatim excerpt from the answer
 """
 
