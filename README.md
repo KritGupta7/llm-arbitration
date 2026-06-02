@@ -314,7 +314,9 @@ The Streamlit dashboard has three tabs:
 
 Submit a question and answer to receive a full arbitration verdict with per-critic scores, confirmed issues, and warnings.
 
-![Streamlit Arbitrate tab showing a 5/5 result](assets/streamlit-result.png)
+![Streamlit Arbitrate tab — input form](assets/streamlit-arbitrate.png)
+
+![Streamlit Arbitrate tab — result showing a 5/5 score](assets/streamlit-result.png)
 
 ### History Tab
 
